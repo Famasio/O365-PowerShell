@@ -1,5 +1,5 @@
 ﻿<#
-.Synopsis
+.Synopsis 
    NO BUSINESS IMPACT - User License Report Generation
    Function Created per User Request
    User License Report Generation
