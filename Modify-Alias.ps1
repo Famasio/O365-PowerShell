@@ -1,5 +1,5 @@
 ﻿<#
-.Synopsis
+.Synopsis 
    LOW BUSINESS IMPACT - MAILBOX SECONDARY ALIAS MODIFICATION
    Function Created per User Request
    Alias Removal/Addition
