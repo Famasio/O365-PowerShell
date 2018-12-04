@@ -1,5 +1,5 @@
 ﻿<#
-.Synopsis
+.Synopsis 
    HIGH BUSINESS IMPACT - SERVICE ACCESSIBILITY MODIFICATION
    Function Created per User Request
    Removal/Reassign of SfB User Licenses and ODB Access
