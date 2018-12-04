@@ -65,7 +65,7 @@ function Enable-Yammer
                                         $DisabledServices =  $user.Licenses.servicestatus | where {$_.serviceplan.servicename -notlike "*YAMMER*" -and $_.provisioningstatus -like "*Disabled*" }
 
                                         #Inputs $DisabledServices as -DisabledPlans Array for new MsolLicensePlan for user
-                                        $NewSkU = New-MsolLicenseOptions -AccountS kuId $user.Licenses[$i].AccountSkuid -DisabledPlans $DisabledServices.ServicePlan.servicename
+                                        $NewSkU = New-MsolLicenseOptions -AccountSkuId $user.Licenses[$i].AccountSkuid -DisabledPlans $DisabledServices.ServicePlan.servicename
                                         Set-MsolUserLicense -UserPrincipalName $user.UserPrincipalName -LicenseOptions $NewSkU  
 
                                 }
