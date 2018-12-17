@@ -1,5 +1,5 @@
-﻿<#
-.Synopsis 
+<#
+.Synopsis
    NO BUSINESS IMPACT - User License Report Generation
    Function Created per User Request
    User License Report Generation
@@ -27,14 +27,17 @@
     Get-LicenseReport -DetailedReport -FilePath "C:\Users\Public\Documents"
     Will create User Service Name & Status Report at C:\Users\Public\Documents\DetailedReport.csv
 
-    Get-LicenseReport -DetailedReport -FilePath "C:\Users\Public\Documents"
-    Will create all 3 report in C:\Users\Public\Documents folder.
+    Get-LicenseReport -UsageReport -FilePath "C:\Users\Public\Documents"
+    Will create Subscription Usage Report (Available/Assigned) at C:\Users\Public\Documents\UsageReport.csv
+
+    Get-LicenseReport -All -FilePath "C:\Users\Public\Documents"
+    Will create all 4 reports in C:\Users\Public\Documents folder.
 
 
 .INPUTS
    -Filepath "Your filepath to FOLDER"
 .OUTPUTS
-   "UnlicensedReport.csv" "SubscriptionReport.csv" "DetailedReport.csv"
+   "UnlicensedReport.csv" "SubscriptionReport.csv" "DetailedReport.csv" "UsageReport.csv"
 .NOTES
    v-bakwi
    Please note that this script has No Business Impact as it does not modify any settings. 
@@ -65,6 +68,10 @@ function Get-LicenseReport
         [Parameter(Mandatory=$true, ParameterSetName = 'SKUDetails')]
         [Switch]$DetailedReport,
 
+        # Will create a report consisting of users and their detailed services (SKU's)
+        [Parameter(Mandatory=$true, ParameterSetName = 'UsageReport')]
+        [Switch]$UsageReport,
+
         # Will generate all reports (ie. Unlicensed, Subscription & Detailed at provided location)
         [Parameter(Mandatory=$true, ParameterSetName = 'All')]
         [Switch]$All,
@@ -74,6 +81,7 @@ function Get-LicenseReport
         [Parameter(Mandatory=$true, ParameterSetName = 'Unlicensed')]
         [Parameter(Mandatory=$true, ParameterSetName = 'Subscription')]
         [Parameter(Mandatory=$true, ParameterSetName = 'SKUDetails')]
+        [Parameter(Mandatory=$true, ParameterSetName = 'UsageReport')]
         $FilePath
         )
 
@@ -101,6 +109,7 @@ function Get-LicenseReport
             $UnlicensedReport = $true
             $SubscriptionReport = $true
             $DetailedReport = $true
+            $UsageReport = $true
         }
 
     }
@@ -201,6 +210,27 @@ function Get-LicenseReport
             }
 
         }
+
+        if ($UsageReport){
+
+            write-host ""
+            write-host "Generating report about subscription usage" -foregroundcolor "Cyan"
+            write-host ""
+
+            $SKUs = Get-MsolAccountSku
+
+            $dummystring = ("Subscription SKU" + "," + "Available" + "," + "Assigned")
+            Out-File -FilePath $FilePath\UsageReport.csv -InputObject $dummystring -Encoding UTF8 -append
+
+            ForEach ($S in $SKUs) {
+
+                write-host "Processing: " $($S.AccountSkuId.split(":")[1])
+
+                $headersubstring = ($($S.AccountSkuId.split(":")[1]) + "," + $($S.ActiveUnits) + "," + $($S.ConsumedUnits)) 
+                Out-File -FilePath $FilePath\UsageReport.csv -InputObject $headersubstring -Encoding UTF8 -append
+            }
+        }
+
     }
 
     End
