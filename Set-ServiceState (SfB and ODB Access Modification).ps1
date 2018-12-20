@@ -15,7 +15,7 @@
 .OUTPUTS
    ExportedUsers.csv & SPOSites.csv at -FilePath location
 .NOTES
-   Created by v-bakwi@microsoft.com
+   v-bakwi
    Please note that this script has High Business Impact as it modifies service accessibility. Please note that you use all scripts, provided or not, on your own responsibility.
    At least basic Powershell knowledge is required to monitor function behaviour.
 .COMPONENT
