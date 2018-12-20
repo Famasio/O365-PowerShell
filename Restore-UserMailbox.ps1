@@ -25,7 +25,7 @@ Step 2: Use received GUID to start recovery actions
 .OUTPUTS
    None
 .NOTES
-   Created by v-bakwi@microsoft.com
+   v-bakwi
    Please note that this script has Low Business Impact as it modifies user mailbox in non-sensitive way. Please note that you use all scripts, provided or not, on your own responsibility.
    At least basic Powershell knowledge is required to monitor script behaviour.
 .COMPONENT
