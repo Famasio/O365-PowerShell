@@ -93,12 +93,7 @@ function Replace-Subscription
             }
 
             else {
-                write-host "Processing $($U.displayname) - $($U.userprincipalname)"
-                write-host ""
-
-                write-host "Added $($SelectedSubAdd.accountskuid)"
-                Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -AddLicenses $($SelectedSubAdd.accountskuid)
-                
+               write-host "User $($U.displayname) - $($U.userprincipalname) does not have this subscription enabled, aborting user."
             }
         }
     }
