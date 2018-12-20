@@ -17,7 +17,7 @@ Grant-UserAccess -MailboxOwner John@Contoso.com -AddedUser Iwanttheaccess@contos
 .OUTPUTS
    Folders.csv file at -FileDir location
 .NOTES
-   Created by v-bakwi@microsoft.com
+   v-bakwi
    Please note that this script has Low Business Impact as it modifies user mailbox in non-sensitive way. Please note that you use all scripts, provided or not, on your own responsibility.
    At least basic Powershell knowledge is required to monitor script behaviour.
 .COMPONENT
