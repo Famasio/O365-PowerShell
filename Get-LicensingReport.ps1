@@ -68,7 +68,7 @@ function Get-LicenseReport
         [Parameter(Mandatory=$true, ParameterSetName = 'SKUDetails')]
         [Switch]$DetailedReport,
 
-        # Will create a report consisting of users and their detailed services (SKU's)
+        # Will create a report consisting of all subscriptions on tenant, licenses available and assigned
         [Parameter(Mandatory=$true, ParameterSetName = 'UsageReport')]
         [Switch]$UsageReport,
 
