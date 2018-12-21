@@ -38,8 +38,24 @@ function Remove-Subscription
     Begin {
 
         if ($Global:FunctionRun -eq $null) {
-            install-module MSOnline
-            import-module MSOnline
+            
+            $errvar = $null
+            
+            import-module msonline -ErrorAction SilentlyContinue -ErrorVariable errvar
+
+            if ($errvar) {
+                Write-Host "Required modules: " -f cyan -nonewline; Write-Host "'MSOnline' " -f yellow -nonewline; Write-Host "not detected, installing." -f cyan;
+                Start-Sleep -Seconds 5
+                install-module msonline
+                import-module msonline
+                write-host "Installation complete, starting Sign-In process..." -f cyan
+                Start-Sleep -Seconds 3
+            }
+            else {
+                Write-Host "Required modules have been loaded. starting Sign-In process..." -f Cyan
+                Start-Sleep -seconds 3
+            }
+
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
             $credential = Get-Credential
             Connect-MsolService -Credential $credential
