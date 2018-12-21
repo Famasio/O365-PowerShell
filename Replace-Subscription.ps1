@@ -51,12 +51,28 @@ function Replace-Subscription
     Begin {
 
         if ($Global:FunctionRun -eq $null) {
-            install-module MSOnline
-            import-module MSOnline
+            
+            $errvar = $null
+
+            import-module msonline -ErrorAction SilentlyContinue -ErrorVariable errvar
+
+            if ($errvar) {
+                Write-Host "Required modules: " -f cyan -nonewline; Write-Host "'MSOnline' " -f yellow -nonewline; Write-Host "not detected, installing." -f cyan;
+                Start-Sleep -Seconds 5
+                install-module msonline
+                import-module msonline
+                write-host "Installation complete, starting Sign-In process..." -f cyan
+                Start-Sleep -Seconds 3
+            }
+            else {
+                Write-Host "Required modules have been loaded. starting Sign-In process..." -f Cyan
+                Start-Sleep -seconds 3
+            }
+
+
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
             $credential = Get-Credential
             Connect-MsolService -Credential $credential
-            Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking
             $Global:FunctionRun = $True
         }
 
@@ -75,7 +91,7 @@ function Replace-Subscription
             $SelectedSubRm = Get-MsolAccountSku | where {$_.accountskuid -like "*:$SubscriptionToRemove"}
 
                 write-host ""
-                write-host "Users affected: Users from CSV File " -ForegroundColor "Cyan"
+                write-host "Users affected: Everyone " -ForegroundColor "Cyan"
                 write-host "Subscription being enabled:" -ForegroundColor "Cyan" $($SelectedSubAdd.accountskuid) 
                 write-host "Subscription being disabled:" -ForegroundColor "Cyan" $($SelectedSubRM.accountskuid) 
                 write-host ""
