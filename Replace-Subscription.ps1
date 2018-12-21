@@ -1,11 +1,10 @@
-﻿<#
+<#
 .Synopsis
    HIGH BUSINESS IMPACT - USER LICENSE/SERVICE MODIFICATION
    Function Created per User Request
    Single subscription disablement
 .DESCRIPTION
    This script will view and edit all user sku's.
-
    Please see 
    https://docs.microsoft.com/en-us/azure/active-directory/users-groups-roles/licensing-service-plan-reference
    for specific subscription names.
@@ -30,12 +29,22 @@ function Replace-Subscription
     [CmdletBinding()]
     Param (
        # Please enter Subscription SKU of main subscription you want to enable. EXAMPLE: -SubscriptionToAdd O365_BUSINESS_PREMIUM for Office365 Business Premium
-            [Parameter(Mandatory=$true)]
+            [Parameter(Mandatory=$true, ParameterSetName = 'Import')]
+            [Parameter(Mandatory=$true, ParameterSetName = 'Standard')]
             $SubscriptionToAdd,
 
        # Please enter Subscription SKU of main subscription you want to disable. EXAMPLE: -SubscriptionToRemove O365_BUSINESS_PREMIUM for Office365 Business Premium
-            [Parameter(Mandatory=$true)]
-            $SubscriptionToRemove
+            [Parameter(Mandatory=$true, ParameterSetName = 'Import')]
+            [Parameter(Mandatory=$true, ParameterSetName = 'Standard')]
+            $SubscriptionToRemove,
+
+       # Please specify path to your CSV file when using "ImportCSV" Param. Format: "C:\Something\More Something\File.csv"
+            [Parameter(Mandatory=$true, ParameterSetName = 'Import')]
+            $FilePath,
+
+       # Use to import custom CSV Database with users to be modified (CSV Database requires "UserPrincipalName Header and list of UPN's below")
+            [Parameter(Mandatory=$true, ParameterSetName = 'Import')]
+            [Switch]$ImportCSV
       
     )
 
@@ -59,42 +68,87 @@ function Replace-Subscription
 
     Process {
 
-        $users = Get-MsolUser -All | Where-Object {$_.isLicensed -eq $true}
-        $SelectedSubAdd = Get-MsolAccountSku | where {$_.accountskuid -like "*:$SubscriptionToAdd"}
-        $SelectedSubRm = Get-MsolAccountSku | where {$_.accountskuid -like "*:$SubscriptionToRemove"}
+        if($ImportCSV) {
 
-            write-host ""
-            write-host "Users affected: Everyone " -ForegroundColor "Cyan"
-            write-host "Subscription being enabled:" -ForegroundColor "Cyan" $($SelectedSubAdd.accountskuid) 
-            write-host "Subscription being disabled:" -ForegroundColor "Cyan" $($SelectedSubRM.accountskuid) 
-            write-host ""
+            $users = Import-Csv -Path $FilePath
+            $SelectedSubAdd = Get-MsolAccountSku | where {$_.accountskuid -like "*:$SubscriptionToAdd"}
+            $SelectedSubRm = Get-MsolAccountSku | where {$_.accountskuid -like "*:$SubscriptionToRemove"}
 
-        $Conf = Read-host -Prompt "Please confirm the operation [Any:Confirm | N:Stop]"
-        write-host ""
-
-        if($Conf -eq 'n'){
-        break
-        }
-
-        else{}
-
-        foreach ($U in $Users){
-
-            if ($U.licenses.accountskuid -like "*:$SubscriptionToRemove") {
-
-                write-host "Processing $($U.displayname) - $($U.userprincipalname)"
+                write-host ""
+                write-host "Users affected: Users from CSV File " -ForegroundColor "Cyan"
+                write-host "Subscription being enabled:" -ForegroundColor "Cyan" $($SelectedSubAdd.accountskuid) 
+                write-host "Subscription being disabled:" -ForegroundColor "Cyan" $($SelectedSubRM.accountskuid) 
                 write-host ""
 
-                write-host "Removed $($SelectedSubRm.accountskuid)"
-                Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -RemoveLicenses $($SelectedSubRm.accountskuid)
+            $Conf = Read-host -Prompt "Please confirm the operation [Any:Confirm | N:Stop]"
+            write-host ""
 
-                write-host "Added $($SelectedSubAdd.accountskuid)"
-                Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -AddLicenses $($SelectedSubAdd.accountskuid)
+            if($Conf -eq 'n'){
+            break
             }
 
-            else {
-               write-host "User $($U.displayname) - $($U.userprincipalname) does not have this subscription enabled, aborting user."
+            else{}
+
+            foreach ($U in $Users){
+
+                if ($U.licenses.accountskuid -like "*:$SubscriptionToRemove") {
+
+                    write-host "Processing $($U.displayname) - $($U.userprincipalname)"
+                    write-host ""
+
+                    write-host "Removed $($SelectedSubRm.accountskuid)"
+                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -RemoveLicenses $($SelectedSubRm.accountskuid)
+
+                    write-host "Added $($SelectedSubAdd.accountskuid)"
+                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -AddLicenses $($SelectedSubAdd.accountskuid)
+                }
+
+                else {
+                   write-host "User $($U.displayname) - $($U.userprincipalname) does not have this subscription enabled, aborting user."
+                }
             }
+
+        }
+        else{
+
+            $users = Get-MsolUser -All | Where-Object {$_.isLicensed -eq $true}
+            $SelectedSubAdd = Get-MsolAccountSku | where {$_.accountskuid -like "*:$SubscriptionToAdd"}
+            $SelectedSubRm = Get-MsolAccountSku | where {$_.accountskuid -like "*:$SubscriptionToRemove"}
+
+                write-host ""
+                write-host "Users affected: Everyone " -ForegroundColor "Cyan"
+                write-host "Subscription being enabled:" -ForegroundColor "Cyan" $($SelectedSubAdd.accountskuid) 
+                write-host "Subscription being disabled:" -ForegroundColor "Cyan" $($SelectedSubRM.accountskuid) 
+                write-host ""
+
+            $Conf = Read-host -Prompt "Please confirm the operation [Any:Confirm | N:Stop]"
+            write-host ""
+
+            if($Conf -eq 'n'){
+            break
+            }
+
+            else{}
+
+            foreach ($U in $Users){
+
+                if ($U.licenses.accountskuid -like "*:$SubscriptionToRemove") {
+
+                    write-host "Processing $($U.displayname) - $($U.userprincipalname)"
+                    write-host ""
+
+                    write-host "Removed $($SelectedSubRm.accountskuid)"
+                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -RemoveLicenses $($SelectedSubRm.accountskuid)
+
+                    write-host "Added $($SelectedSubAdd.accountskuid)"
+                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -AddLicenses $($SelectedSubAdd.accountskuid)
+                }
+
+                else {
+                   write-host "User $($U.displayname) - $($U.userprincipalname) does not have this subscription enabled, aborting user."
+                }
+            }
+
         }
     }
 
