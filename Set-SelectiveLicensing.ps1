@@ -70,12 +70,15 @@ function Set-SelectiveLicensing
 
         if ($Global:FunctionRun -eq $null) {
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
-            $credential = Get-Credential
-
-            if(!(import-module msonline)){
+            
+            if(!(import-module msonline -ErrorAction SilentlyContinue)){
+                write-host "No module detected, installing appropriate modules" -ForegroundColor "Cyan"
                 Install-Module Msonline
                 Import-Module Msonline
             }
+
+            write-host "Modules installed, starting Sign-In process" -ForegroundColor "Cyan"
+            $credential = Get-Credential
             Connect-MsolService -Credential $credential
             $exchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $credential -Authentication "Basic" -AllowRedirection
             Import-PSSession $exchangeSession
