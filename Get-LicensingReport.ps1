@@ -92,9 +92,9 @@ function Get-LicenseReport
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
             import-module msonline
             $credential = Get-Credential
-            Connect-MsolService -Credential $credential
-            $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $credential -Authentication "Basic" –AllowRedirection  
-            Import-PSSession $ExchangeSession -AllowClobber
+            Connect-MsolService -Credential $credential -ErrorAction Stop
+            $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $credential -Authentication "Basic" –AllowRedirection -ErrorAction Stop  
+            Import-PSSession $ExchangeSession -AllowClobber -ErrorAction Stop
             $Global:FunctionRun = $True
         }
 
