@@ -59,8 +59,8 @@ function Replace-Subscription
             if ($errvar) {
                 Write-Host "Required modules: " -f cyan -nonewline; Write-Host "'MSOnline' " -f yellow -nonewline; Write-Host "not detected, installing." -f cyan;
                 Start-Sleep -Seconds 5
-                install-module msonline
-                import-module msonline
+                Install-Module MSOnline -ErrorAction Stop
+                Import-Module MsOnline -ErrorAction Stop
                 write-host "Installation complete, starting Sign-In process..." -f cyan
                 Start-Sleep -Seconds 3
             }
@@ -72,7 +72,7 @@ function Replace-Subscription
 
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
             $credential = Get-Credential
-            Connect-MsolService -Credential $credential
+            Connect-MsolService -Credential $credential -ErrorAction Stop
             $Global:FunctionRun = $True
         }
 
@@ -113,10 +113,10 @@ function Replace-Subscription
                     write-host ""
 
                     write-host "Removed $($SelectedSubRm.accountskuid)"
-                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -RemoveLicenses $($SelectedSubRm.accountskuid)
+                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -RemoveLicenses $($SelectedSubRm.accountskuid -ErrorAction Inquire
 
                     write-host "Added $($SelectedSubAdd.accountskuid)"
-                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -AddLicenses $($SelectedSubAdd.accountskuid)
+                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -AddLicenses $($SelectedSubAdd.accountskuid) -ErrorAction Inquire
                 }
 
                 else {
@@ -154,10 +154,10 @@ function Replace-Subscription
                     write-host ""
 
                     write-host "Removed $($SelectedSubRm.accountskuid)"
-                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -RemoveLicenses $($SelectedSubRm.accountskuid)
+                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -RemoveLicenses $($SelectedSubRm.accountskuid) -ErrorAction Inquire
 
                     write-host "Added $($SelectedSubAdd.accountskuid)"
-                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -AddLicenses $($SelectedSubAdd.accountskuid)
+                    Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -AddLicenses $($SelectedSubAdd.accountskuid) -ErrorAction Inquire
                 }
 
                 else {
