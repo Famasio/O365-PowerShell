@@ -90,7 +90,8 @@ function Get-LicenseReport
         if ($Global:FunctionRun -eq $null) {
 
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
-            import-module msonline
+            Install-Module MSOnline -ErrorAction Stop
+            Import-Module MsOnline -ErrorAction Stop
             $credential = Get-Credential
             Connect-MsolService -Credential $credential -ErrorAction Stop
             $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $credential -Authentication "Basic" –AllowRedirection -ErrorAction Stop  
