@@ -46,8 +46,8 @@ function Remove-Subscription
             if ($errvar) {
                 Write-Host "Required modules: " -f cyan -nonewline; Write-Host "'MSOnline' " -f yellow -nonewline; Write-Host "not detected, installing." -f cyan;
                 Start-Sleep -Seconds 5
-                install-module msonline
-                import-module msonline
+                Install-Module MSOnline -ErrorAction Stop
+                Import-Module MsOnline -ErrorAction Stop
                 write-host "Installation complete, starting Sign-In process..." -f cyan
                 Start-Sleep -Seconds 3
             }
@@ -58,8 +58,8 @@ function Remove-Subscription
 
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
             $credential = Get-Credential
-            Connect-MsolService -Credential $credential
-            Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking
+            Connect-MsolService -Credential $credential -ErrorAction Stop
+            Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking -ErrorAction Stop
             $Global:FunctionRun = $True
         }
 
@@ -93,7 +93,7 @@ function Remove-Subscription
 
                 write-host "Processing $($U.displayname) - $($U.userprincipalname)"
 
-                Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -RemoveLicenses $($SelectedSub.accountskuid)
+                Set-MsolUserLicense -UserPrincipalName $($U.userprincipalname) -RemoveLicenses $($SelectedSub.accountskuid) -ErrorAction Inquire
             }
 
             else {
