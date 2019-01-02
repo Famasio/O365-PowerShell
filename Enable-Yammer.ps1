@@ -33,6 +33,8 @@ function Enable-Yammer
             $credential = Get-Credential
             Connect-MsolService -Credential $credential -ErrorAction Stop
             Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking -ErrorAction Stop
+            Install-Module MSOnline -ErrorAction Stop
+            Import-Module MsOnline -ErrorAction Stop
             $Global:FunctionRun = $True
         }
 
