@@ -55,12 +55,12 @@ Function Set-ServiceState {
         $adminUPN = $Cred.UserName
         $AccountSKU = ("$OrganizationName"+":O365_BUSINESS_PREMIUM")
 
-        Install-Module MsOnline
-        Import-Module MSOnline
-        Install-Module Microsoft.Online.SharePoint.PowerShell
-        Import-Module Microsoft.Online.SharePoint.PowerShell
-        Connect-MsolService –Credential $Cred 
-        Connect-SPOService -Url https://$OrganizationName-admin.sharepoint.com -Credential $Cred
+        Install-Module MsOnline -ErrorAction Stop
+        Import-Module MSOnline -ErrorAction Stop
+        Install-Module Microsoft.Online.SharePoint.PowerShell -ErrorAction Stop
+        Import-Module Microsoft.Online.SharePoint.PowerShell -ErrorAction Stop
+        Connect-MsolService –Credential $Cred  -ErrorAction Stop
+        Connect-SPOService -Url https://$OrganizationName-admin.sharepoint.com -Credential $Cred -ErrorAction Stop
         
         Write-Host "Extracting all users from Tenant, exporting them to a ExportedUsers.csv"
         Get-MSOlUser -All | Where {$_.UserPrincipalName -notlike "*#EXT#*"} | Where {$_.isLicensed -eq $True} | Select-Object UserPrincipalName | Export-Csv -Path ".\ExportedUsers.csv" -NoTypeInformation -Force
