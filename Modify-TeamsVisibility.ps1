@@ -108,11 +108,11 @@ function Modify-TeamsVisibility
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
        
             $credential = get-credential 
-            Install-Module MSOnline
-            Import-Module MsOnline 
-            Connect-MsolService -Credential $credential   
-            $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $credential -Authentication "Basic" –AllowRedirection  
-            Import-PSSession $ExchangeSession
+            Install-Module MSOnline -ErrorAction Stop
+            Import-Module MsOnline -ErrorAction Stop
+            Connect-MsolService -Credential $credential -ErrorAction Stop
+            $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $credential -Authentication "Basic" –AllowRedirection -ErrorAction Stop  
+            Import-PSSession $ExchangeSession -ErrorAction Stop
         }
 
         Else {}
