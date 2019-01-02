@@ -1,4 +1,4 @@
-﻿<#
+<#
 .Synopsis
    LOW BUSINESS IMPACT - MAILBOX RESTORE TO SPECIFIED FOLDER
    Function Created per User Request
@@ -47,7 +47,6 @@ function Restore-UserMailbox
        
         # Provide E-Mail address of the mailbox you want to restore
         [Parameter(Mandatory=$true, ParameterSetName = 'GUID')]
-        [Parameter(Mandatory=$true, ParameterSetName = 'Restore')]
         $MailboxPrimarySMTPAddress,
 
         # Provide Exchange GUID of mailbox ypou want to restore
@@ -68,11 +67,11 @@ function Restore-UserMailbox
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
        
             $credential = get-credential 
-            Install-Module MSOnline
-            Import-Module MsOnline 
+            Install-Module MSOnline -ErrorAction Stop
+            Import-Module MsOnline -ErrorAction Stop
             Connect-MsolService -Credential $credential   
-            $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $credential -Authentication "Basic" –AllowRedirection  
-            Import-PSSession $ExchangeSession
+            $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $credential -Authentication "Basic" –AllowRedirection -ErrorAction Stop  
+            Import-PSSession $ExchangeSession -ErrorAction Stop
         }
 
         Else {}
@@ -81,8 +80,9 @@ function Restore-UserMailbox
 
         $script:FunctionRun = "True"
         $Mailbox = Get-Mailbox -Identity $MailboxPrimarySMTPAddress -InactiveMailboxOnly | fl Name,DistinguishedName,ExchangeGuid,PrimarySmtpAddress
-        return $Mailbox
-
+        Write-Output "Please view the following details about requested mailbox:"
+        $Mailbox
+        break;
         }
 
         Else {
@@ -94,11 +94,7 @@ function Restore-UserMailbox
     Process{
         $script:FunctionRun = "True"
 
-        New-MailboxRestoreRequest -SourceMailbox $InactiveMailbox.DistinguishedName -TargetMailbox $MailboxPrimarySMTPAddress -TargetRootFolder $TargetRestoreFolder -AllowLegacyDNMismatch
-
-        write-host "Mailbox restore request has been scheduled, please review it down below:"
-
-        write-output Get-MailboxRestoreRequest
+        New-MailboxRestoreRequest -SourceMailbox $($InactiveMailbox.DistinguishedName) -TargetMailbox $MailboxPrimarySMTPAddress -TargetRootFolder $TargetRestoreFolder -AllowLegacyDNMismatch
             
     }
     End{
