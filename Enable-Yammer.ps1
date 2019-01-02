@@ -31,8 +31,8 @@ function Enable-Yammer
         if ($Global:FunctionRun -eq $null) {
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
             $credential = Get-Credential
-            Connect-MsolService -Credential $credential
-            Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking
+            Connect-MsolService -Credential $credential -ErrorAction Stop
+            Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking -ErrorAction Stop
             $Global:FunctionRun = $True
         }
 
@@ -66,7 +66,7 @@ function Enable-Yammer
 
                                         #Inputs $DisabledServices as -DisabledPlans Array for new MsolLicensePlan for user
                                         $NewSkU = New-MsolLicenseOptions -AccountSkuId $user.Licenses[$i].AccountSkuid -DisabledPlans $DisabledServices.ServicePlan.servicename
-                                        Set-MsolUserLicense -UserPrincipalName $user.UserPrincipalName -LicenseOptions $NewSkU  
+                                        Set-MsolUserLicense -UserPrincipalName $user.UserPrincipalName -LicenseOptions $NewSkU -ErrorAction Inquire
 
                                 }
 
