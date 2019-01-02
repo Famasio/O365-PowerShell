@@ -56,11 +56,11 @@ function Modify-Alias {
         
         $Cred = Get-Credential
         
-        Install-Module MsOnline -ErrorAction SilentlyContinue
-        Import-Module MSOnline
-        Connect-MsolService –Credential $Cred 
-        $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $cred –AllowRedirection  
-        Import-PSSession $ExchangeSession 
+        Install-Module MsOnline -ErrorAction Stop
+        Import-Module MSOnline -ErrorAction Stop
+        Connect-MsolService –Credential $Cred -ErrorAction Stop 
+        $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $cred –AllowRedirection -ErrorAction Stop
+        Import-PSSession $ExchangeSession -ErrorAction Stop 
 
         write-host "Exported mailbox database file to "$FilePath\Mailboxes.csv""
         Get-Mailbox | Where {$_.PrimarySmtpAddress -like "*$InitialDomain"} |Select name,primarysmtpaddress | Export-Csv "$FilePath\Mailboxes.csv" -NoTypeInformation
@@ -71,20 +71,20 @@ function Modify-Alias {
     Process{
 
         If ($Add) {
-            write-host "Add Mailbox Operation Started"                        
+            write-host "Add Mailbox Alias Operation Started"                        
             ForEach ($M in $Mailbox) {
                 $UserName =($($M.PrimarySmtpAddress) -split "@")[0]    
                 $UPN= $UserName+"@"+$AliasDomain
-                set-mailbox -identity $($M.PrimarySmtpAddress) -EmailAddresses @{add = $UPN}
+                set-mailbox -identity $($M.PrimarySmtpAddress) -EmailAddresses @{add = $UPN} -ErrorAction Inquire
                 write-host "Adding alias $UPN to mailbox $($M.Name)"
             }
         }
         Else {
-            write-host "Add Mailbox Operation Started"
+            write-host "Remove Mailbox Alias Operation Started"
             ForEach ($M in $Mailbox) {
                 $UserName =($($M.PrimarySmtpAddress) -split "@")[0]    
                 $UPN= $UserName+"@"+$AliasDomain
-                set-mailbox -identity $($M.PrimarySmtpAddress) -EmailAddresses @{remove = $UPN}
+                set-mailbox -identity $($M.PrimarySmtpAddress) -EmailAddresses @{remove = $UPN} -ErrorAction Inquire
                 write-host "Removing alias $UPN from mailbox $($M.name)"
             }
 
