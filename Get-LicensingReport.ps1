@@ -10,8 +10,10 @@
 
    PLEASE SEE "SYNTAX" & "PARAMETERS" FOR CORRECT FUNCTION USAGE
    
-   Articles containing Plan & SKU ID's and Abbrev. for User's reference.
+   SERVICE SKU:
    https://docs.microsoft.com/en-us/office365/enterprise/powershell/view-licenses-and-services-with-office-365-powershell
+
+   SUBSCRIPTION SKU:
    https://docs.microsoft.com/en-us/azure/active-directory/users-groups-roles/licensing-service-plan-reference
 
 .EXAMPLE
@@ -32,6 +34,9 @@
 
     Get-LicenseReport -All -FilePath "C:\Users\Public\Documents"
     Will create all 4 reports in C:\Users\Public\Documents folder.
+
+    Get-LicenseReport -Filter -FilterList '$SubscriptionID -like "FLOW_FREE" -and $ServiceName[$i] -like "Teams1" -and $ServiceStatus[$i] -like "Success"' -FileName "Flow + Teams Active.csv" -FilePath "C:\Users\Public\Documents"
+    Will list all users, who have Flow Free assigned, and in addition have Teams Service in active state
 
 
 .INPUTS
@@ -72,16 +77,29 @@ function Get-LicenseReport
         [Parameter(Mandatory=$true, ParameterSetName = 'UsageReport')]
         [Switch]$UsageReport,
 
-        # Will generate all reports (ie. Unlicensed, Subscription & Detailed at provided location)
+        # Will generate all reports (ie. Unlicensed, Subscription, Detailed & Usage at provided location)
         [Parameter(Mandatory=$true, ParameterSetName = 'All')]
         [Switch]$All,
+        
+        # Will enable use of custom filters in order to generate personalized CSV file about users
+        [Parameter(Mandatory=$true, ParameterSetName = 'Filtered')]
+        [Switch]$Filter,
 
-        # Mailbox folder in "" to which you want to provision restored files
+        # List of used filters in format: -FilterList '$SubscriptionID -like "FLOW_FREE" -and $ServiceName[$i] -like "Teams1" -and $ServiceStatus[$i] -like "Success"'. $SubscriptionID is String ID from 2nd link, $ServiceName[$i] and $ServiceStatus[$i] HAVE to be used in exact same form with $i. ServiceName is listed in 1st link, where ServiceStatus can be "Success, PendingInput, Disabled" (May be other)
+        [Parameter(Mandatory=$true, ParameterSetName = 'Filtered')]
+        $FilterList,
+
+        # Makes you able to add custom filename to personalized reports, like: -FileName "Flow + Teams Active.csv"
+        [Parameter(Mandatory=$true, ParameterSetName = 'Filtered')]
+        $Filename,
+
+        # Filepath to folder you want your report(s) in, like -FilePath "C:\Users\Public\Documents"
         [Parameter(Mandatory=$true, ParameterSetName = 'All')]
         [Parameter(Mandatory=$true, ParameterSetName = 'Unlicensed')]
         [Parameter(Mandatory=$true, ParameterSetName = 'Subscription')]
         [Parameter(Mandatory=$true, ParameterSetName = 'SKUDetails')]
         [Parameter(Mandatory=$true, ParameterSetName = 'UsageReport')]
+        [Parameter(Mandatory=$true, ParameterSetName = 'Filtered')]
         $FilePath
         )
 
@@ -97,10 +115,11 @@ function Get-LicenseReport
             $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $credential -Authentication "Basic" –AllowRedirection -ErrorAction Stop  
             Import-PSSession $ExchangeSession -AllowClobber -ErrorAction Stop
             $Global:FunctionRun = $True
+            cls
         }
 
         else {
-
+        cls
         write-host "User currently signed in, aborting signup"
         write-host ""
         }
@@ -230,6 +249,52 @@ function Get-LicenseReport
                 $headersubstring = ($($S.AccountSkuId.split(":")[1]) + "," + $($S.ActiveUnits) + "," + $($S.ConsumedUnits)) 
                 Out-File -FilePath $FilePath\UsageReport.csv -InputObject $headersubstring -Encoding UTF8 -append
             }
+        }
+
+        if ($Filter){
+
+            write-host ""
+            write-host "Generating custom report with filter:" $FilterList -foregroundcolor "Cyan"
+            write-host ""
+
+            $Users  = Get-Msoluser -All | Where-Object {$_.isLicensed -eq $true}
+
+            $sb = [scriptblock]::create($FilterList)
+
+            $headermainstring = ("DisplayName" + "," + "UserPrincipalName" + "," + "UsageLocation" + ",") 
+            Out-File -FilePath $FilePath\$FileName -InputObject $headermainstring -Encoding UTF8 -append
+
+            foreach ($U in $Users) {
+                
+                write-Host ""
+                write-host "Processing $($U.displayname)"
+
+                $ServiceName = $u.Licenses.servicestatus.serviceplan.servicename
+
+                $ServiceStatus = $u.Licenses.servicestatus.provisioningstatus
+
+                $SubscriptionID = $SubscriptionID = $u.licenses.accountskuid.split(":") | Select -unique
+                $SubscriptionID = $SubscriptionID[1..($SubscriptionID.length-1)]
+
+                for($i = 0; $i -lt $ServiceName.count; $i++){
+                    
+                    if ($U | where $sb) {
+
+                        $headersubstring = ($U.displayname + "," + $U.UserPrincipalName + "," + $U.UsageLocation + ",") 
+                        Out-File -FilePath $FilePath\$FileName -InputObject $headersubstring -Encoding UTF8 -append
+                        write-Host "User meets filter - added to CSV file" -ForegroundColor Cyan
+                        continue
+
+                    }
+                    else {
+
+                    }
+                    
+                }
+
+            Start-Sleep -Milliseconds 250
+            }
+
         }
 
     }
