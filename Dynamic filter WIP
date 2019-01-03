@@ -1,0 +1,45 @@
+### -FilterList Param
+$FilterList = '$SubscriptionID -like "DYN365_ENTERPRISE_PLAN1" -and $ServiceName[$i] -like "Teams1" -and $ServiceStatus[$i] -like "Success"'
+
+$FilePath = "C:\Users\Public\Documents"
+
+$Users  = Get-Msoluser -All | Where-Object {$_.isLicensed -eq $true}
+
+$sb = [scriptblock]::create($FilterList)
+
+    foreach ($U in $Users) {
+                
+                write-host "Processing $($U.displayname)"
+
+                $AccountUsageLocation = $u.usagelocaiton
+
+                $ServiceName = $u.Licenses.servicestatus.serviceplan.servicename
+
+                $ServiceStatus = $u.Licenses.servicestatus.provisioningstatus
+
+                $SubscriptionID = $SubscriptionID = $u.licenses.accountskuid.split(":") | Select -unique
+                $SubscriptionID = $SubscriptionID[1..($SubscriptionID.length-1)]
+
+                $i = 0
+
+                for($i = 0; $i -lt $ServiceName.count; $i++){
+                    
+                    if ($U | where $sb) {
+
+                        $headersubstring = ($U.displayname + "," + $U.UserPrincipalName + "," + $U.UsageLocation + ",") 
+                        Out-File -FilePath $FilePath\FilteredUsers.csv -InputObject $headersubstring -Encoding UTF8 -append
+                        write-Host "Dupa success"
+                        continue
+
+                    }
+                    else {
+                        write-Host "Dupa FAILFAILFAILFAILFAILFAILFAILFAILFAIL"
+                    }
+                    
+                }
+                
+
+     }
+
+     get-msoluser -UserPrincipalName xxx@xxx.pl | select -ExpandProperty licenses
+     
