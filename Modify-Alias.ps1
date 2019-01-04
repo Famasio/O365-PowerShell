@@ -59,7 +59,7 @@ function Modify-Alias {
         Install-Module MsOnline -ErrorAction Stop
         Import-Module MSOnline -ErrorAction Stop
         Connect-MsolService –Credential $Cred -ErrorAction Stop 
-        $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $cred –AllowRedirection -ErrorAction Stop
+        $ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "https://outlook.office365.com/powershell-liveid/" -Credential $cred -Authentication "Basic" –AllowRedirection -ErrorAction Stop
         Import-PSSession $ExchangeSession -ErrorAction Stop 
 
         write-host "Exported mailbox database file to "$FilePath\Mailboxes.csv""
