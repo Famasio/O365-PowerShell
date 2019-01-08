@@ -1,0 +1,14 @@
+$cred = get-credential
+
+    $To = $($cred.username)
+    $From = $($cred.username)
+
+    $Subject = "Get-LicensingReport has finished the operation"
+    $Body = "Get-LicensingReport has finished the operation"
+
+    $Port = "25"
+    $SMTPServer = "smtp.office365.com"
+
+    $Credential = $cred
+
+Send-MailMessage -To $To -From $From -Subject $Subject -Body $Body -Port $Port -Credential $cred -SmtpServer $SMTPServer -UseSsl
