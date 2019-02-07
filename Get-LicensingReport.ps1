@@ -104,7 +104,7 @@ function Get-LicenseReport
         )
 
     Begin {
-
+        ### Login part ###
         if ($Global:FunctionRun -eq $null) {
 
             Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
@@ -123,7 +123,7 @@ function Get-LicenseReport
         write-host "User currently signed in, aborting signup"
         write-host ""
         }
-
+        ### -All Param switch ###
         if ($All){
 
             $UnlicensedReport = $true
@@ -144,7 +144,8 @@ function Get-LicenseReport
 
             $headerstringmain = "UserPrincipalName,DisplayName"
             Out-File -FilePath $FilePath\UnlicensedReport.csv -InputObject $headerstringmain -Encoding UTF8 -append 
-
+            
+            
             if ($OnlyInternal){
 
                 $Users  = Get-Msoluser -All -Unlicensedusersonly | where {$_.userprincipalname -notlike "*#EXT#*"}
